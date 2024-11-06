@@ -52,6 +52,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         KC_P0,    KC_PDOT, KC_PENT
     ),
 };
+#ifdef OLED_ENABLE
 // OLED Layer indicator bitmaps 
 const char numpad[] PROGMEM =  {
         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
@@ -159,7 +160,7 @@ const char altium_pcb[] PROGMEM =  {
 
 const char *const oled_layer_screens[] PROGMEM = {numpad, altium_sch, altium_pcb};
 // OLED task call
-#ifdef OLED_ENABLE
+
 
 bool oled_task_user() {
     uint8_t current_layer = get_highest_layer(default_layer_state);

@@ -5,3 +5,5 @@
 
 #define MATRIX_ROWS 5 
 #define MATRIX_COLS 4 
+
+#define LAYER_STATE_8BIT

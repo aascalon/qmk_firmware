@@ -1,0 +1,7 @@
+#define ENCODER_A_PINS { D6 }
+#define ENCODER_B_PINS { D4 }
+#define ENCODER_RESOLUTION 4
+#define OLED_FONT_HEIGHT 16
+
+#define MATRIX_ROWS 5 
+#define MATRIX_COLS 4 

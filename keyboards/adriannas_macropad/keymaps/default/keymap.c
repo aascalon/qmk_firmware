@@ -1,54 +1,151 @@
 // Copyright 2023 QMK
 // SPDX-License-Identifier: GPL-2.0-or-later
 #include "quantum.h" 
-
 #include QMK_KEYBOARD_H
+const int keypress_delay = 100; 
+const int mouseclick_delay = 50;
 enum layer_names {
     _BASE,
     _ALTIUM_SCH,
-    _ALTIUM_PCB
+    _ALTIUM_PCB,
+    _ALTIUM_SCH_TRACE,
+    //_ALTIUM_PCB_ROUTE
 };
 
 enum custom_keycodes{
     BREAK_WIRE = SAFE_RANGE,
     PLACE_NET,
     PLACE_POWER_PORT,
+    PLACE_HARNESS_WIRE,
+    PLACE_HARNESS_CONN,
     ANNOTATE,
-    COMPILE
+    COMPILE_SCH,
+    PUSH_SCH_TO_PCB,
+    CROSS_PROBE,
+    MOVE,
+    PLACE_SHEET_SYMBOL,
+    PLACE_SHEET_ENTRY,
+    PLACE_PART,
+    TRACE_PORT_LOCAL,
+    TRACE_PORT_GLOBAL,
+    PLACE_VIA,
+    ALIGN_HORIZONTAL,
+    REPOSITION_COMP
+
 };
+
+enum tap_dances{
+    ROUTE,
+    ALIGN_CENTRES
+};
+
+// Altium Macros 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
     case BREAK_WIRE:
         if (record->event.pressed) {
-            SEND_STRING("ew");
+            SEND_STRING_DELAY("ew", keypress_delay);
         } 
         break;
     case PLACE_NET:
         if (record->event.pressed) {
-            SEND_STRING("pn");
+            SEND_STRING_DELAY("pn", keypress_delay);
+            send_string("\t");
         } else {
-            SEND_STRING("\t");
-            caps_word_on();
         }
         break;
     case PLACE_POWER_PORT:
         if (record->event.pressed) {
-            SEND_STRING("po");
+            SEND_STRING_DELAY("po", keypress_delay);
+            send_string("\t");
         } else {
-            SEND_STRING("\t");
-            caps_word_on();
         }
         break;
     case ANNOTATE:
         if (record->event.pressed) {
-            SEND_STRING("taa");
+            SEND_STRING_DELAY("tau", keypress_delay);
         }
-    case COMPILE:
+        break;
+    case COMPILE_SCH:
         if (record->event.pressed) {
-            SEND_STRING("cc");
+            SEND_STRING_DELAY("cc", keypress_delay);
         }
+        break;
+    case PUSH_SCH_TO_PCB:
+        if (record->event.pressed) {
+            SEND_STRING_DELAY("du", keypress_delay);
+        }
+        break;
+    case CROSS_PROBE:
+        if (record->event.pressed) {
+            SEND_STRING_DELAY("tc", keypress_delay);
+        }
+        break;
+    case PLACE_HARNESS_WIRE:
+        if (record->event.pressed) {
+            SEND_STRING_DELAY("phh", keypress_delay);
+        }
+        break;    
+    case PLACE_HARNESS_CONN:
+        if (record->event.pressed) {
+            SEND_STRING_DELAY("phc", keypress_delay);
+        }
+        break;    
+    case MOVE:
+        if (record->event.pressed) {
+            SEND_STRING_DELAY("ems", keypress_delay);
+        }
+        break;    
+    case PLACE_PART:
+        if (record->event.pressed) {
+            SEND_STRING_DELAY("pp", keypress_delay);
+        }
+        break;       
+    case PLACE_SHEET_SYMBOL:
+        if (record->event.pressed) {
+            SEND_STRING_DELAY("ps", keypress_delay);
+        }
+        break;  
+    case PLACE_SHEET_ENTRY:
+        if (record->event.pressed) {
+            SEND_STRING_DELAY("pe", keypress_delay);
+        }
+        break;       
+    case TRACE_PORT_LOCAL:
+        if (record->event.pressed) {
+            SEND_STRING(SS_LCTL(SS_TAP(X_BTN1)SS_DELAY(mouseclick_delay)SS_TAP(X_BTN1)));
+        }
+        break;   
+    case TRACE_PORT_GLOBAL:
+        if (record->event.pressed) {
+            SEND_STRING(SS_LALT(SS_TAP(X_BTN1)SS_DELAY(mouseclick_delay)SS_TAP(X_BTN1)));
+        }
+        break;   
+    case PLACE_VIA:
+        if (record->event.pressed) {
+            SEND_STRING_DELAY("pv", keypress_delay);
+        }
+        break;      
+    
+    case REPOSITION_COMP:
+        if (record->event.pressed) {
+            SEND_STRING_DELAY("toc", keypress_delay);
+        }
+        break;      
     }
     return true;
+};
+void align_centres(tap_dance_state_t *state, void *user_data) {
+    if (state->count == 1) {
+        SEND_STRING ("ac");
+        reset_tap_dance (state); }
+    else if (state->count == 2) { SEND_STRING ("av"); }
+} 
+//Tap Dance definitions
+tap_dance_action_t tap_dance_actions[] = {
+    // Tap once for v (route), twice for ; (diff pair route)
+    [ROUTE] = ACTION_TAP_DANCE_DOUBLE(KC_V, KC_SCLN),
+    [ALIGN_CENTRES] = ACTION_TAP_DANCE_FN(align_centres)
 };
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     /*
@@ -67,7 +164,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
      * └───────┴───┴───┘
      */
     [_BASE] = LAYOUT(
-        KC_A,
+        KC_PAUSE,
         KC_LNUM,  KC_PSLS, KC_PAST, KC_PMNS, 
         KC_P7,    KC_P8,   KC_P9, 
         KC_P4,    KC_P5,   KC_P6,   KC_PPLS,
@@ -76,22 +173,28 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     ),
     [_ALTIUM_SCH] = LAYOUT(
         KC_PAUSE,
-        KC_LNUM,    KC_PSLS, KC_PAST, KC_PMNS, 
-        // Place wire          
-        LCTL(KC_R), BREAK_WIRE, PLACE_NET, 
-        //                        Rubber-stamp
-        PLACE_POWER_PORT,    KC_P5,   KC_P6,  LCTL(KC_W),
-        KC_P1,    KC_P2,   KC_P3,   
-        //         // Smart Paste     
-        LCTL(LSFT(KC_V)), COMPILE, KC_SPACE
+        TG(_ALTIUM_SCH_TRACE),             COMPILE_SCH,         ANNOTATE,             PUSH_SCH_TO_PCB, 
+        LCTL(KC_W),          BREAK_WIRE,          PLACE_NET, 
+        PLACE_POWER_PORT,    PLACE_HARNESS_WIRE,  PLACE_HARNESS_CONN,   LCTL(KC_R),
+        PLACE_SHEET_SYMBOL,  PLACE_SHEET_ENTRY,   PLACE_PART,   
+        LCTL(LSFT(KC_V)),    LCTL(KC_Z),          KC_SPACE
     ),
-    [_ALTIUM_PCB] = LAYOUT(
+    [_ALTIUM_SCH_TRACE] = LAYOUT(
         KC_PAUSE,
-        KC_LNUM,  KC_PSLS, KC_PAST, KC_PMNS, 
-        KC_P7,    KC_P8,   KC_P9, 
-        KC_P4,    KC_P5,   KC_P6,   KC_PPLS,
+        _______,  _______, _______, KC_PMNS, 
+        _______,  _______, _______, 
+        _______,  _______, _______, TRACE_PORT_LOCAL,
         KC_P1,    KC_P2,   KC_P3,   
-        KC_P0,    KC_PDOT, KC_PENT
+        KC_P0,    KC_PDOT, TRACE_PORT_GLOBAL
+    ),
+    // Layer for placement and fanout
+    [_ALTIUM_PCB] = LAYOUT(
+        KC_A,
+        KC_LNUM,  REPOSITION_COMP, KC_PAST, KC_PMNS, 
+        KC_LSFT,    LSFT(LCTL(KC_T)),   PLACE_VIA, 
+        LSFT(LCTL(KC_L)),    TD(ALIGN_CENTRES),   LSFT(LCTL(KC_R)),   TD(ROUTE),
+        KC_P1,    LSFT(LCTL(KC_B)),   KC_P3,   
+        KC_P0,    KC_PDOT, KC_SPACE
     ),
 };
 #ifdef OLED_ENABLE
@@ -166,6 +269,7 @@ const char altium_sch[] PROGMEM =  {
     };
 
 const char altium_pcb[] PROGMEM =  {
+    
         0x00, 0xf0, 0xf8, 0xfc, 0xfc, 0xfe, 0x3e, 0x3e, 0x7c, 0xfc, 0xf8, 0xf0, 0xf0, 0xe0, 0xe0, 0xc0, 
         0x80, 0x80, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
@@ -201,7 +305,13 @@ const char altium_pcb[] PROGMEM =  {
     };
 
 
-const char *const oled_layer_screens[] PROGMEM = {numpad, altium_sch, altium_pcb};
+const char *const oled_layer_screens[] PROGMEM = {
+    numpad, 
+    altium_sch, 
+    altium_sch, 
+    altium_pcb,
+    altium_pcb
+    };
 // OLED task call
 
 
@@ -219,8 +329,9 @@ bool oled_task_user() {
 #if defined(ENCODER_MAP_ENABLE)
 const uint16_t PROGMEM encoder_map[][NUM_ENCODERS][NUM_DIRECTIONS] = {
     [_BASE] = { ENCODER_CCW_CW(DF(_ALTIUM_PCB), DF(_ALTIUM_SCH)) },
-    [_ALTIUM_SCH] = { ENCODER_CCW_CW(DF(_BASE), DF(_ALTIUM_PCB)) } ,
+    [_ALTIUM_SCH] = { ENCODER_CCW_CW(DF(_BASE), DF(_ALTIUM_PCB)) },
     [_ALTIUM_PCB] = { ENCODER_CCW_CW(DF(_ALTIUM_SCH), DF(_BASE)) },
-
+    [_ALTIUM_SCH_TRACE] = { ENCODER_CCW_CW(KC_NO, KC_NO) },
+    //[_ALTIUM_PCB_ROUTE] = { ENCODER_CCW_CW(KC_NO, KC_NO) }
 };
 #endif

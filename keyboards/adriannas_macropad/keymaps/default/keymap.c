@@ -189,8 +189,8 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     ),
     // Layer for placement and fanout
     [_ALTIUM_PCB] = LAYOUT(
-        KC_A,
-        KC_LNUM,  REPOSITION_COMP, KC_PAST, KC_PMNS, 
+        KC_A,     //mapped to reposition selected
+        TG(_BASE),  LALT(LCTL(KC_1)), KC_PAST, KC_PMNS, 
         KC_LSFT,    LSFT(LCTL(KC_T)),   PLACE_VIA, 
         LSFT(LCTL(KC_L)),    TD(ALIGN_CENTRES),   LSFT(LCTL(KC_R)),   TD(ROUTE),
         KC_P1,    LSFT(LCTL(KC_B)),   KC_P3,   

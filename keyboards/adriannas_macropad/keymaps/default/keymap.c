@@ -8,7 +8,7 @@ enum layer_names {
     _BASE,
     _ALTIUM_SCH,
     _ALTIUM_PCB,
-    _ALTIUM_SCH_TRACE,
+    //_ALTIUM_SCH_TRACE,
     //_ALTIUM_PCB_ROUTE
 };
 
@@ -173,20 +173,20 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     ),
     [_ALTIUM_SCH] = LAYOUT(
         KC_PAUSE,
-        TG(_ALTIUM_SCH_TRACE),             COMPILE_SCH,         ANNOTATE,             PUSH_SCH_TO_PCB, 
+        KC_NO,             COMPILE_SCH,         ANNOTATE,             PUSH_SCH_TO_PCB, 
         LCTL(KC_W),          BREAK_WIRE,          PLACE_NET, 
         PLACE_POWER_PORT,    PLACE_HARNESS_WIRE,  PLACE_HARNESS_CONN,   LCTL(KC_R),
         PLACE_SHEET_SYMBOL,  PLACE_SHEET_ENTRY,   PLACE_PART,   
         LCTL(LSFT(KC_V)),    LCTL(KC_Z),          KC_SPACE
     ),
-    [_ALTIUM_SCH_TRACE] = LAYOUT(
-        KC_PAUSE,
-        _______,  _______, _______, KC_PMNS, 
-        _______,  _______, _______, 
-        _______,  _______, _______, TRACE_PORT_LOCAL,
-        KC_P1,    KC_P2,   KC_P3,   
-        KC_P0,    KC_PDOT, TRACE_PORT_GLOBAL
-    ),
+    // [_ALTIUM_SCH_TRACE] = LAYOUT(
+    //     KC_PAUSE,
+    //     _______,  _______, _______, KC_PMNS, 
+    //     _______,  _______, _______, 
+    //     _______,  _______, _______, TRACE_PORT_LOCAL,
+    //     KC_P1,    KC_P2,   KC_P3,   
+    //     KC_P0,    KC_PDOT, TRACE_PORT_GLOBAL
+    // ),
     // Layer for placement and fanout
     [_ALTIUM_PCB] = LAYOUT(
         KC_A,     //mapped to reposition selected
@@ -308,8 +308,6 @@ const char altium_pcb[] PROGMEM =  {
 const char *const oled_layer_screens[] PROGMEM = {
     numpad, 
     altium_sch, 
-    altium_sch, 
-    altium_pcb,
     altium_pcb
     };
 // OLED task call
@@ -331,7 +329,7 @@ const uint16_t PROGMEM encoder_map[][NUM_ENCODERS][NUM_DIRECTIONS] = {
     [_BASE] = { ENCODER_CCW_CW(DF(_ALTIUM_PCB), DF(_ALTIUM_SCH)) },
     [_ALTIUM_SCH] = { ENCODER_CCW_CW(DF(_BASE), DF(_ALTIUM_PCB)) },
     [_ALTIUM_PCB] = { ENCODER_CCW_CW(DF(_ALTIUM_SCH), DF(_BASE)) },
-    [_ALTIUM_SCH_TRACE] = { ENCODER_CCW_CW(KC_NO, KC_NO) },
+    //[_ALTIUM_SCH_TRACE] = { ENCODER_CCW_CW(KC_NO, KC_NO) },
     //[_ALTIUM_PCB_ROUTE] = { ENCODER_CCW_CW(KC_NO, KC_NO) }
 };
 #endif

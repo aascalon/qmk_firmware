@@ -141,6 +141,7 @@ void align_centres(tap_dance_state_t *state, void *user_data) {
         reset_tap_dance (state); }
     else if (state->count == 2) { SEND_STRING ("av"); }
 } 
+
 //Tap Dance definitions
 tap_dance_action_t tap_dance_actions[] = {
     // Tap once for v (route), twice for ; (diff pair route)
@@ -173,7 +174,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     ),
     [_ALTIUM_SCH] = LAYOUT(
         KC_PAUSE,
-        KC_NO,             COMPILE_SCH,         ANNOTATE,             PUSH_SCH_TO_PCB, 
+        KC_DEL,             COMPILE_SCH,         ANNOTATE,             PUSH_SCH_TO_PCB, 
         LCTL(KC_W),          BREAK_WIRE,          PLACE_NET, 
         PLACE_POWER_PORT,    PLACE_HARNESS_WIRE,  PLACE_HARNESS_CONN,   LCTL(KC_R),
         PLACE_SHEET_SYMBOL,  PLACE_SHEET_ENTRY,   PLACE_PART,   
@@ -189,21 +190,21 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     // ),
     // Layer for placement and fanout
     [_ALTIUM_PCB_PLACE] = LAYOUT(
-        KC_A,     //mapped to reposition selected
-        TG(_BASE),  LALT(LCTL(KC_1)), KC_PAST, KC_PMNS, 
-        KC_LSFT,    LSFT(LCTL(KC_T)),   PLACE_VIA, 
-        LSFT(LCTL(KC_L)),    TD(ALIGN_CENTRES),   LSFT(LCTL(KC_R)),   TD(ROUTE),
+        KC_PAUSE,
+        KC_DEL,    LALT(LCTL(KC_1)), KC_PAST, KC_PMNS, 
+        TD(ROUTE),    LSFT(LCTL(KC_T)),   PLACE_VIA, 
+        LSFT(LCTL(KC_L)),    TD(ALIGN_CENTRES),   LSFT(LCTL(KC_R)),  KC_NO,
         KC_P1,    LSFT(LCTL(KC_B)),   KC_P3,   
-        KC_P0,    KC_PDOT, KC_SPACE
+        KC_LSFT,    LCTL(KC_Z), KC_SPACE
     ),
 
     [_ALTIUM_PCB_ROUTE] = LAYOUT(
         KC_A,     //mapped to reposition selected
-        TG(_BASE),  LALT(LCTL(KC_1)), KC_PAST, KC_PMNS, 
-        _______,    LCTL(KC_W),   _______, 
-        LSFT(LCTL(KC_L)),    TD(ALIGN_CENTRES),   LSFT(LCTL(KC_R)), KC_TAB,
-        KC_P1,    LSFT(LCTL(KC_B)),   KC_P3,   
-        KC_P0,    KC_PDOT, KC_SPACE
+        KC_DEL,  KC_TAB, KC_PAST, KC_PMNS, 
+        TD(ROUTE),    PLACE_VIA,   PLACE_VIA, 
+        PLACE_VIA,    PLACE_VIA,   LSFT(LCTL(KC_R)), KC_NO,
+        KC_P1,    PLACE_VIA,   KC_P3,   
+        KC_P0,    LCTL(KC_Z), KC_SPACE
     ),
 };
 #ifdef OLED_ENABLE

@@ -201,9 +201,9 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     [_ALTIUM_PCB_ROUTE] = LAYOUT(
         KC_A,     //mapped to reposition selected
         KC_DEL,  KC_TAB, KC_PAST, KC_PMNS, 
-        TD(ROUTE),    PLACE_VIA,   PLACE_VIA, 
-        PLACE_VIA,    PLACE_VIA,   LSFT(LCTL(KC_R)), KC_NO,
-        KC_P1,    PLACE_VIA,   KC_P3,   
+        TD(ROUTE),    KC_NO,   PLACE_VIA, 
+        KC_NO,    KC_NO,   LSFT(LCTL(KC_R)), KC_NO,
+        KC_P1,    KC_NO,   KC_P3,   
         KC_P0,    LCTL(KC_Z), KC_SPACE
     ),
 };

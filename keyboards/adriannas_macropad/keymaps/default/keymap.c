@@ -20,7 +20,7 @@ enum custom_keycodes{
     PLACE_HARNESS_CONN,
     ANNOTATE,
     COMPILE_SCH,
-    PUSH_SCH_TO_PCB,
+    PUSH_SCH_PCB,
     CROSS_PROBE,
     MOVE,
     PLACE_SHEET_SYMBOL,
@@ -29,14 +29,16 @@ enum custom_keycodes{
     TRACE_PORT_LOCAL,
     TRACE_PORT_GLOBAL,
     PLACE_VIA,
-    ALIGN_HORIZONTAL,
-    REPOSITION_COMP
-
+    REPOSITION_COMP,
+    DESIGN_RULE_CHECK,
+    PLACE_POLYGON,
+    OPEN_DESIGN_RULES
 };
 
 enum tap_dances{
     ROUTE,
-    ALIGN_CENTRES
+    ALIGN_CENTRES,
+    DISTRIBUTE
 };
 
 // Altium Macros 
@@ -71,7 +73,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             SEND_STRING_DELAY("cc", keypress_delay);
         }
         break;
-    case PUSH_SCH_TO_PCB:
+    case PUSH_SCH_PCB:
         if (record->event.pressed) {
             SEND_STRING_DELAY("du", keypress_delay);
         }
@@ -132,21 +134,38 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             SEND_STRING_DELAY("toc", keypress_delay);
         }
         break;      
+    case DESIGN_RULE_CHECK:
+        if (record->event.pressed) {
+            SEND_STRING_DELAY("tdr", keypress_delay);
+        }
+        break;      
+    case PLACE_POLYGON:
+        if (record->event.pressed) {
+            SEND_STRING_DELAY("pg", keypress_delay);
+        }
+        break;      
+    case OPEN_DESIGN_RULES:
+    if (record->event.pressed) {
+        SEND_STRING_DELAY("dr", keypress_delay);
+        }
+        break;      
     }
     return true;
 };
+// Tap once to align centres horizontally, twice for vertically
 void align_centres(tap_dance_state_t *state, void *user_data) {
     if (state->count == 1) {
         SEND_STRING ("ac");
         reset_tap_dance (state); }
     else if (state->count == 2) { SEND_STRING ("av"); }
-} 
+};
 
 //Tap Dance definitions
 tap_dance_action_t tap_dance_actions[] = {
     // Tap once for v (route), twice for ; (diff pair route)
     [ROUTE] = ACTION_TAP_DANCE_DOUBLE(KC_V, KC_SCLN),
-    [ALIGN_CENTRES] = ACTION_TAP_DANCE_FN(align_centres)
+    [ALIGN_CENTRES] = ACTION_TAP_DANCE_FN(align_centres),
+    [DISTRIBUTE] = ACTION_TAP_DANCE_DOUBLE(LSFT(LCTL(KC_H)), LSFT(LCTL(KC_V)))
 };
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     /*
@@ -174,11 +193,11 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     ),
     [_ALTIUM_SCH] = LAYOUT(
         KC_PAUSE,
-        KC_DEL,             COMPILE_SCH,         ANNOTATE,             PUSH_SCH_TO_PCB, 
-        LCTL(KC_W),          BREAK_WIRE,          PLACE_NET, 
-        PLACE_POWER_PORT,    PLACE_HARNESS_WIRE,  PLACE_HARNESS_CONN,   LCTL(KC_R),
-        PLACE_SHEET_SYMBOL,  PLACE_SHEET_ENTRY,   PLACE_PART,   
-        LCTL(LSFT(KC_V)),    LCTL(KC_Z),          KC_SPACE
+        KC_DEL,             ANNOTATE,            PUSH_SCH_PCB,       COMPILE_SCH,          
+        LCTL(KC_W),         BREAK_WIRE,          PLACE_NET, 
+        PLACE_POWER_PORT,   PLACE_HARNESS_WIRE,  PLACE_HARNESS_CONN, LCTL(KC_R),
+        PLACE_SHEET_SYMBOL, PLACE_SHEET_ENTRY,   PLACE_PART,   
+        LCTL(LSFT(KC_V)),   LCTL(KC_Z),          KC_SPACE
     ),
     // [_ALTIUM_SCH_TRACE] = LAYOUT(
     //     KC_PAUSE,
@@ -191,23 +210,23 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     // Layer for placement and fanout
     [_ALTIUM_PCB_PLACE] = LAYOUT(
         KC_PAUSE,
-        KC_DEL,    LALT(LCTL(KC_1)), KC_PAST, KC_PMNS, 
-        TD(ROUTE),    LSFT(LCTL(KC_T)),   PLACE_VIA, 
-        LSFT(LCTL(KC_L)),    TD(ALIGN_CENTRES),   LSFT(LCTL(KC_R)),  KC_NO,
-        KC_P1,    LSFT(LCTL(KC_B)),   KC_P3,   
-        KC_LSFT,    LCTL(KC_Z), KC_SPACE
+        KC_DEL,             LALT(LCTL(KC_1)),   KC_PAST,           KC_PMNS, 
+        TD(ROUTE),          LSFT(LCTL(KC_T)),   PLACE_VIA, 
+        LSFT(LCTL(KC_L)),   TD(ALIGN_CENTRES),  LSFT(LCTL(KC_R)),  LCTL(KC_R),
+        LSFT(KC_S),         LSFT(LCTL(KC_B)),   KC_BSPC,   
+        KC_LSFT,            LCTL(KC_Z),         KC_SPACE
     ),
 
     [_ALTIUM_PCB_ROUTE] = LAYOUT(
         KC_A,     //mapped to reposition selected
-        KC_DEL,  KC_TAB, KC_PAST, KC_PMNS, 
-        TD(ROUTE),    KC_NO,   PLACE_VIA, 
-        KC_NO,    KC_NO,   LSFT(LCTL(KC_R)), KC_NO,
-        KC_P1,    KC_NO,   KC_P3,   
-        KC_P0,    LCTL(KC_Z), KC_SPACE
+        KC_DEL,       KC_TAB,            PUSH_SCH_PCB, DESIGN_RULE_CHECK, 
+        TD(ROUTE),    PLACE_POLYGON,     PLACE_VIA, 
+        KC_P4,        KC_P5,             LSFT(KC_C),   LCTL(KC_R),
+        LSFT(KC_S),   OPEN_DESIGN_RULES, KC_BSPC,   
+        KC_LSFT,      LCTL(KC_Z),        KC_SPACE
     ),
 };
-#ifdef OLED_ENABLE
+#ifdef OLED_ENABLE   
 // OLED Layer indicator bitmaps 
 const char numpad[] PROGMEM =  {
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
@@ -369,10 +388,10 @@ bool oled_task_user() {
 
 #if defined(ENCODER_MAP_ENABLE)
 const uint16_t PROGMEM encoder_map[][NUM_ENCODERS][NUM_DIRECTIONS] = {
-    [_BASE] = { ENCODER_CCW_CW(DF(_ALTIUM_PCB_ROUTE), DF(_ALTIUM_SCH)) },
-    [_ALTIUM_SCH] = { ENCODER_CCW_CW(DF(_BASE), DF(_ALTIUM_PCB_PLACE)) },
-    [_ALTIUM_PCB_PLACE] = { ENCODER_CCW_CW(DF(_ALTIUM_SCH), DF(_ALTIUM_PCB_ROUTE)) },
+    [_BASE] = { ENCODER_CCW_CW(TG(_ALTIUM_PCB_ROUTE), TG(_ALTIUM_SCH)) },
+    [_ALTIUM_SCH] = { ENCODER_CCW_CW(TO(_BASE), TG(_ALTIUM_PCB_PLACE)) },
+    [_ALTIUM_PCB_PLACE] = { ENCODER_CCW_CW(TO(_ALTIUM_SCH), TG(_ALTIUM_PCB_ROUTE)) },
     //[_ALTIUM_SCH_TRACE] = { ENCODER_CCW_CW(KC_NO, KC_NO) },
-    [_ALTIUM_PCB_ROUTE] = { ENCODER_CCW_CW(DF(_ALTIUM_PCB_PLACE), DF(_BASE)) }
+    [_ALTIUM_PCB_ROUTE] = { ENCODER_CCW_CW(TO(_ALTIUM_PCB_PLACE), TO(_BASE)) }
 };
 #endif

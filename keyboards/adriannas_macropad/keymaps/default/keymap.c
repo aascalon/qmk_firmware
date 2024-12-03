@@ -376,7 +376,7 @@ const char *const oled_layer_screens[] PROGMEM = {
 
 
 bool oled_task_user() {
-    uint8_t current_layer = get_highest_layer(default_layer_state);
+    uint8_t current_layer = get_highest_layer(layer_state);
     const char *display_array = (const char *)pgm_read_word(&(oled_layer_screens[current_layer]));
     
     oled_write_raw_P(display_array, 512);
